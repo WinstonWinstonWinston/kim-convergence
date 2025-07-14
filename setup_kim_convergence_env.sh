@@ -21,6 +21,7 @@ echo ">>> Installing binary packages via conda..."
 conda install -y \
     numpy \
     matplotlib \
+    scipy \
     omegaconf
 
 echo ">>> Upgrading pip and adding build helpers..."

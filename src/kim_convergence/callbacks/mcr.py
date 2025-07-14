@@ -35,7 +35,7 @@ def mcr(values: Iterable[float], percent_past_d: float, every: int, log: logging
     condition = n > d_star*percent_past_d
 
     log.info(
-    f"[mcr]: n = {n}, d* = {d_star},  condition = {condition}"
+    f"[mcr]: n = {n} | d* = {d_star} |  condition = {condition}"
     )
 
     return condition

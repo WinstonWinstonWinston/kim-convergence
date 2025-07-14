@@ -24,7 +24,6 @@ def _init_state(kc: "KimConvergence") -> None:
         )
         kc._substeps = p.substeps
         kc.state["position"].append(np.asarray(p.x_init, dtype=float))
-        kc.step = 0
 
 def step_fn(kc: "KimConvergence") -> None:
     """
@@ -59,28 +58,20 @@ def main(cfg: DictConfig) -> None:
     kc.run() # walk the pipeline
 
     values = np.array(kc.state['position'])
-    running_mean = np.cumsum(values) / np.arange(1, len(values) + 1)
-    cumsum_sq = np.cumsum(values**2)
-    cumulative_std = np.sqrt(
-        (cumsum_sq / np.arange(1, len(values) + 1)) - running_mean**2
-    )
-    d = np.array([np.sum((values[d:] - values[d:].mean())**2) / (len(values) - d)**2 for d in range(0,int(0.8*len(values)))])
     
-    plt.plot(values, label=f'Mean: {np.mean(values):.3f}, Mean After EQ {np.mean(values[np.argmin(d):]):.3f}')
-    plt.plot(running_mean, label='Cumulative Mean')
-    plt.plot(cumulative_std, label='Cumulative Std')
-    plt.plot([np.std(values[i:]) for i in range(len(values))], label='Reverse Cumulative Std')
-    plt.axvline(np.argmin(d),color='r',linestyle='dashed')
-    plt.plot(np.ones_like(values) * 0.1, linestyle='--', color='gray')
-    plt.plot(-np.ones_like(values) * 0.1, linestyle='--', color='gray')
-    plt.xlim(0,kc.max_steps+cfg.step_fn.params.substeps+1)
-    plt.ylim(-5,5)
+    plt.plot(values, label=f'Mean: {np.mean(values):.3f}, Mean After EQ {np.mean(values[kc.equilibration_step:]):.3f}')
+    plt.axvline(kc.equilibration_step,color='r',linestyle='dashed')
+    plt.ylim(-2,2)
     plt.legend()
     plt.show()
 
-    plt.axvline(np.argmin(d),color='r',linestyle='dashed')
-    plt.plot(np.min(d)*np.ones_like(d))
-    plt.plot(d)
+    print(kc.equilibration_step)
+
+    plt.plot(values, label=f'Mean: {np.mean(values):.3f}, Mean After EQ {np.mean(values[kc.equilibration_step:]):.3f}')
+    plt.axvline(kc.equilibration_step,color='r',linestyle='dashed')
+    plt.ylim(-5,5)
+    plt.xlim(0,2*kc.equilibration_step)
+    plt.legend()
     plt.show()
 
 if __name__ == "__main__":

@@ -1,8 +1,8 @@
-# kim_convergence/stages/equilibrate.py
+# kim_convergence/stages/production.py
 from __future__ import annotations
 from kim_convergence.gatherer import Gatherer
 from kim_convergence.core import KimConvergence
-from kim_convergence.callbacks.mcr import mcr
+from kim_convergence.callbacks.statistical_inefficiency import statistical_inefficiency
 
 def run(kc: "KimConvergence") -> None:
     """
@@ -10,9 +10,9 @@ def run(kc: "KimConvergence") -> None:
     """
 
     # ---- echo hyper‑parameters  ------------------
-    p = kc.cfg.equilibrate
+    p = kc.cfg.production
     kc.log.info(
-    f"[equilibrate]: starting equilibrate, percent_past_d = {p.percent_past_d}, every = {p.every}, key = {p.key}"
+    f"[production]: starting production, limit = {p.limit}, ci_half_width_desired = {p.ci_half_width_desired}, key = {p.key}"
     )
 
     # ---- optional callback lists from YAML ---------------------------
@@ -20,9 +20,9 @@ def run(kc: "KimConvergence") -> None:
     init_cbs    = g_cfg.get("init_callbacks", ())
     step_cbs    = g_cfg.get("step_callbacks", ())
     cleanup_cbs = g_cfg.get("cleanup_callbacks", ())
-    
+
     # ───── lambda captures the extra args so Gatherer only sees kc ─────
-    convergence_fn = lambda kc, b=p.percent_past_d, c=p.every, d=kc.log: mcr(kc.state[p.key], b, c, d)
+    convergence_fn = lambda kc, b=p.limit, c=p.ci_half_width_desired, d=kc.log: statistical_inefficiency(kc.state["position"][kc.equilibration_step:], b, c, d)
 
     # ---- build and run the loop --------------------------------------
     g = Gatherer(
@@ -34,11 +34,11 @@ def run(kc: "KimConvergence") -> None:
         cleanup_callbacks=cleanup_cbs,
     )
 
+    # ---- save equilibration time to kc --------------------------------------
+    kc.equilibration_time = kc.step
+    
     g.gather()
 
-    # ---- save equilibration time to kc --------------------------------------
-    kc.equilibration_step = kc.step
-    
     kc.log.info(
-    f"[equilibrate]: equilibrate complete"
+    f"[production]: production complete"
     )
