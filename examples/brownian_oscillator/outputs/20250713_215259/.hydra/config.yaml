@@ -1,0 +1,23 @@
+step_fn:
+  fname: brownian_oscillator.py
+  max_steps: 100000
+  params:
+    seed: 1234
+    kB: 1.0
+    temperature: 0.1
+    lam: 0.5
+    k_spring: 1.0
+    dt: 0.001
+    x_init: -5.0
+    substeps: 1000
+pipeline:
+  stages:
+  - equilibrate
+equilibrate:
+  bounds:
+  - -0.1
+  - 0.1
+  gather:
+    init_callbacks: null
+    step_callbacks: null
+    cleanup_callbacks: null
