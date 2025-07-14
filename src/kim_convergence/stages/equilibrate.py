@@ -11,7 +11,9 @@ def run(kc: "KimConvergence") -> None:
 
     # ---- echo hyper‑parameters  ------------------
     p = kc.cfg.equilibrate
-    print(f"[equilibrate] percent_past_d={p.percent_past_d}")
+    kc.log.info(
+    f"[equilibrate]: starting equilibrate, percent_past_d={p.percent_past_d}"
+    )
 
     # ---- optional callback lists from YAML ---------------------------
     g_cfg = p.get("gather", {})
@@ -20,7 +22,7 @@ def run(kc: "KimConvergence") -> None:
     cleanup_cbs = g_cfg.get("cleanup_callbacks", ())
     
     # ───── lambda captures the extra args so Gatherer only sees kc ─────
-    convergence_fn = lambda kc, b=p.percent_past_d,c=p.every: mcr(kc.state["position"], b, c)
+    convergence_fn = lambda kc, b=p.percent_past_d, c=p.every, d=kc.log: mcr(kc.state["position"], b, c, d)
 
     # ---- build and run the loop --------------------------------------
     g = Gatherer(
@@ -33,3 +35,7 @@ def run(kc: "KimConvergence") -> None:
     )
     
     g.gather()
+
+    kc.log.info(
+    f"[equilibrate]: equilibrate complete"
+    )

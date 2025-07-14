@@ -6,6 +6,9 @@ from omegaconf import DictConfig
 import hydra
 import numpy as np
 import matplotlib.pyplot as plt
+import logging
+
+log = logging.getLogger(__name__)
 
 def _init_state(kc: "KimConvergence") -> None:
     """
@@ -43,7 +46,11 @@ def main(cfg: DictConfig) -> None:
     Hydra entry-point.  Creates KimConvergence, wires in the step
     function named in cfg.step_fn.fname, then starts the run.
     """
+    log.info("Running brownian_oscillator.py")
+    log.info(f"Config: {cfg}")
+
     kc = KimConvergence(cfg)
+    kc.log = log
 
     # Resolve & attach the per‑step function
     kc.step_fn = step_fn
@@ -57,14 +64,12 @@ def main(cfg: DictConfig) -> None:
     cumulative_std = np.sqrt(
         (cumsum_sq / np.arange(1, len(values) + 1)) - running_mean**2
     )
-    d = np.array([np.sum((values[d:] - values[d:].mean())**2) / (len(values) - d)**2 for d in range(0,int(0.9*len(values)))])
-    print(len(d))
-    print(len(values))
-    plt.plot(values, label=f'Mean: {np.mean(values):.3f}')
+    d = np.array([np.sum((values[d:] - values[d:].mean())**2) / (len(values) - d)**2 for d in range(0,int(0.8*len(values)))])
+    
+    plt.plot(values, label=f'Mean: {np.mean(values):.3f}, Mean After EQ {np.mean(values[np.argmin(d):]):.3f}')
     plt.plot(running_mean, label='Cumulative Mean')
     plt.plot(cumulative_std, label='Cumulative Std')
     plt.plot([np.std(values[i:]) for i in range(len(values))], label='Reverse Cumulative Std')
-    plt.plot(len(values)*d, label='d')
     plt.axvline(np.argmin(d),color='r',linestyle='dashed')
     plt.plot(np.ones_like(values) * 0.1, linestyle='--', color='gray')
     plt.plot(-np.ones_like(values) * 0.1, linestyle='--', color='gray')
@@ -72,7 +77,11 @@ def main(cfg: DictConfig) -> None:
     plt.ylim(-5,5)
     plt.legend()
     plt.show()
-    
+
+    plt.axvline(np.argmin(d),color='r',linestyle='dashed')
+    plt.plot(np.min(d)*np.ones_like(d))
+    plt.plot(d)
+    plt.show()
 
 if __name__ == "__main__":
     main()

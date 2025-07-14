@@ -19,7 +19,7 @@ step_fn:
   params:
     seed: 1234              # random‑number generator seed
     kB: 1.0                 # Boltzmann constant (reduced units)
-    temperature: 0.1        # T
+    temperature: 0.01        # T
     lam: 0.5                # damping coefficient
     k_spring: 1.0           # harmonic force constant
     dt: 1e-3                # integration time step
@@ -39,7 +39,7 @@ pipeline:
 
 equilibrate:
   # Hyper‑parameters read in stages/equilibrate.py
-  percent_past_d: 2
+  percent_past_d: 5
   every: 2000
 
   gather:

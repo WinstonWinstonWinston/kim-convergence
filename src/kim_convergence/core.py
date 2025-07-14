@@ -5,6 +5,7 @@ from typing import Callable, Any,DefaultDict, List
 import collections
 from omegaconf import DictConfig, OmegaConf
 import numpy as np
+import logging
 
 class KimConvergence:
     """
@@ -56,6 +57,8 @@ class KimConvergence:
         #   * value = list of np.ndarray, one entry per step
         self.state: DefaultDict[str, List[np.ndarray]] = collections.defaultdict(list)
 
+        self.log: logging.Logger
+
     def _run_stage(self, mod_path: str) -> None:
         try:
             mod = importlib.import_module("kim_convergence.stages."+mod_path)
@@ -66,13 +69,21 @@ class KimConvergence:
             raise AttributeError(f"Module '{mod_path}' does not define a 'run(self)' function.")
 
         mod.run(self)
+
+    def _resolve_callback(self, mod_path: str) -> None:
+        try:
+            mod = importlib.import_module("kim_convergence.callbacks."+mod_path)
+        except ModuleNotFoundError as e:
+            raise ImportError(f"Could not import loop check callback '{mod_path}': {e}")
+
+        return mod
         
     def _execute(self, stages) -> None:
         for item in stages:
             if isinstance(item, str):                         # plain stage
                 self._run_stage(item)
 
-            elif isinstance(item, DictConfig) and "loop" in item: # borken rn 
+            elif isinstance(item, DictConfig) and "loop" in item:
                 loop_cfg = item.loop
                 cond: Callable[["KimConvergence"], bool] = self._resolve_callback(
                     loop_cfg.loopcondition
