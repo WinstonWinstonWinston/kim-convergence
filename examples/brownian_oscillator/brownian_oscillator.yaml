@@ -1,0 +1,47 @@
+# configs/main.yaml
+# ------------------------------------------------------------------
+# Minimal, end‑to‑end configuration that matches the code layout
+# we just finished wiring up (Hydra + Gatherer + loop stage).
+# ------------------------------------------------------------------
+
+hydra:
+  run:
+    dir: "outputs/${now:%Y%m%d_%H%M%S}"   # keep Hydra logs tidy
+
+# ------------------------------------------------------------------
+# step_fn : tells KimConvergence which file implements the per‑step
+#           dynamics *and* passes its hyper‑parameters.
+# ------------------------------------------------------------------
+
+step_fn:
+  fname: brownian_oscillator.py
+  max_steps: 100000          # maximum times to call step_fn
+  params:
+    seed: 1234              # random‑number generator seed
+    kB: 1.0                 # Boltzmann constant (reduced units)
+    temperature: 0.1        # T
+    lam: 0.5                # damping coefficient
+    k_spring: 1.0           # harmonic force constant
+    dt: 1e-3                # integration time step
+    x_init: -5.0            # initial position
+    substeps: 1000
+
+# ------------------------------------------------------------------
+# Pipeline order
+# ------------------------------------------------------------------
+pipeline:
+  stages:
+    - equilibrate
+
+# ------------------------------------------------------------------
+# Stage definitions
+# ------------------------------------------------------------------
+
+equilibrate:
+  # Hyper‑parameters read in stages/equilibrate.py
+  bounds: [-0.1, 0.1]              # lo / hi for mean‑position convergence
+
+  gather:
+    init_callbacks:
+    step_callbacks:
+    cleanup_callbacks:
