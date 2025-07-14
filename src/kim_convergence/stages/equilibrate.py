@@ -2,7 +2,7 @@
 from __future__ import annotations
 from kim_convergence.gatherer import Gatherer
 from kim_convergence.core import KimConvergence
-from kim_convergence.callbacks.mean_in_bounds import mean_in_bounds
+from kim_convergence.callbacks.mcr import mcr
 
 def run(kc: "KimConvergence") -> None:
     """
@@ -11,7 +11,7 @@ def run(kc: "KimConvergence") -> None:
 
     # ---- echo hyper‑parameters  ------------------
     p = kc.cfg.equilibrate
-    print(f"[equilibrate] bounds={p.bounds}")
+    print(f"[equilibrate] percent_past_d={p.percent_past_d}")
 
     # ---- optional callback lists from YAML ---------------------------
     g_cfg = p.get("gather", {})
@@ -19,8 +19,8 @@ def run(kc: "KimConvergence") -> None:
     step_cbs    = g_cfg.get("step_callbacks", ())
     cleanup_cbs = g_cfg.get("cleanup_callbacks", ())
     
-    # ───── lambda “captures” the bounds so Gatherer only sees kc ─────
-    convergence_fn = lambda kc, b=p.bounds: mean_in_bounds(kc.state["position"], b)
+    # ───── lambda captures the extra args so Gatherer only sees kc ─────
+    convergence_fn = lambda kc, b=p.percent_past_d,c=p.every: mcr(kc.state["position"], b, c)
 
     # ---- build and run the loop --------------------------------------
     g = Gatherer(

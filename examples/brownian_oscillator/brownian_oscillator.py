@@ -53,13 +53,26 @@ def main(cfg: DictConfig) -> None:
 
     values = np.array(kc.state['position'])
     running_mean = np.cumsum(values) / np.arange(1, len(values) + 1)
+    cumsum_sq = np.cumsum(values**2)
+    cumulative_std = np.sqrt(
+        (cumsum_sq / np.arange(1, len(values) + 1)) - running_mean**2
+    )
+    d = np.array([np.sum((values[d:] - values[d:].mean())**2) / (len(values) - d)**2 for d in range(0,int(0.9*len(values)))])
+    print(len(d))
+    print(len(values))
     plt.plot(values, label=f'Mean: {np.mean(values):.3f}')
     plt.plot(running_mean, label='Cumulative Mean')
-    plt.plot(np.ones_like(values)*0.1)
-    plt.plot(-np.ones_like(values)*0.1)
-    plt.xlim(0,kc.max_steps)
+    plt.plot(cumulative_std, label='Cumulative Std')
+    plt.plot([np.std(values[i:]) for i in range(len(values))], label='Reverse Cumulative Std')
+    plt.plot(len(values)*d, label='d')
+    plt.axvline(np.argmin(d),color='r',linestyle='dashed')
+    plt.plot(np.ones_like(values) * 0.1, linestyle='--', color='gray')
+    plt.plot(-np.ones_like(values) * 0.1, linestyle='--', color='gray')
+    plt.xlim(0,kc.max_steps+cfg.step_fn.params.substeps+1)
+    plt.ylim(-5,5)
     plt.legend()
     plt.show()
+    
 
 if __name__ == "__main__":
     main()

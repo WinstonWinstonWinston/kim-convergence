@@ -15,7 +15,7 @@ hydra:
 
 step_fn:
   fname: brownian_oscillator.py
-  max_steps: 100000          # maximum times to call step_fn
+  max_steps: 50000            # maximum steps
   params:
     seed: 1234              # random‑number generator seed
     kB: 1.0                 # Boltzmann constant (reduced units)
@@ -24,7 +24,7 @@ step_fn:
     k_spring: 1.0           # harmonic force constant
     dt: 1e-3                # integration time step
     x_init: -5.0            # initial position
-    substeps: 1000
+    substeps: 4000
 
 # ------------------------------------------------------------------
 # Pipeline order
@@ -39,7 +39,8 @@ pipeline:
 
 equilibrate:
   # Hyper‑parameters read in stages/equilibrate.py
-  bounds: [-0.1, 0.1]              # lo / hi for mean‑position convergence
+  percent_past_d: 2
+  every: 2000
 
   gather:
     init_callbacks:
