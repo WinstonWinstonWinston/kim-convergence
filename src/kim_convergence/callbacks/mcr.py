@@ -1,5 +1,3 @@
-# Mean‑position convergence test (independent of KimConvergence)
-
 import numpy as np
 from typing import Sequence, Iterable
 import matplotlib.pyplot as plt

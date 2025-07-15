@@ -2,7 +2,7 @@
 from __future__ import annotations
 from kim_convergence.gatherer import Gatherer
 from kim_convergence.core import KimConvergence
-from kim_convergence.callbacks.statistical_inefficiency import statistical_inefficiency
+from kim_convergence.callbacks.autocorr import autocorr
 
 def run(kc: "KimConvergence") -> None:
     """
@@ -12,7 +12,7 @@ def run(kc: "KimConvergence") -> None:
     # ---- echo hyper‑parameters  ------------------
     p = kc.cfg.production
     kc.log.info(
-    f"[production]: starting production, limit = {p.limit}, ci_half_width_desired = {p.ci_half_width_desired}, key = {p.key}"
+    f"[production]: starting production, tol = {p.tol}, c = {p.c}, key = {p.key}"
     )
 
     # ---- optional callback lists from YAML ---------------------------
@@ -22,7 +22,7 @@ def run(kc: "KimConvergence") -> None:
     cleanup_cbs = g_cfg.get("cleanup_callbacks", ())
 
     # ───── lambda captures the extra args so Gatherer only sees kc ─────
-    convergence_fn = lambda kc, b=p.limit, c=p.ci_half_width_desired, d=kc.log: statistical_inefficiency(kc.state["position"][kc.equilibration_step:], b, c, d)
+    convergence_fn = lambda kc, b=p.tol, c=p.c, d=kc.log,: autocorr(kc.state["position"][kc.equilibration_step:], b, c, d)
 
     # ---- build and run the loop --------------------------------------
     g = Gatherer(

@@ -59,20 +59,13 @@ def main(cfg: DictConfig) -> None:
 
     values = np.array(kc.state['position'])
     
-    plt.plot(values, label=f'Mean: {np.mean(values):.3f}, Mean After EQ {np.mean(values[kc.equilibration_step:]):.3f}')
-    plt.axvline(kc.equilibration_step,color='r',linestyle='dashed')
-    plt.ylim(-2,2)
-    plt.legend()
-    plt.show()
-
-    print(kc.equilibration_step)
-
-    plt.plot(values, label=f'Mean: {np.mean(values):.3f}, Mean After EQ {np.mean(values[kc.equilibration_step:]):.3f}')
+    plt.plot(values, label=f'Mean: {np.mean(values):.3f}, Mean After EQ {np.mean(values[kc.equilibration_step:]):.3f}',color='k',alpha=0.3)
     plt.axvline(kc.equilibration_step,color='r',linestyle='dashed')
     plt.ylim(-5,5)
-    plt.xlim(0,2*kc.equilibration_step)
     plt.legend()
     plt.show()
+
+    print("Eq Step:",kc.equilibration_step)
 
 if __name__ == "__main__":
     main()
