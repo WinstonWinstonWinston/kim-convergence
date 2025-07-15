@@ -15,16 +15,16 @@ hydra:
 
 step_fn:
   fname: brownian_oscillator.py
-  max_steps: 1e7            # maximum steps
+  max_steps: 1e9            # maximum steps
   params:
     seed: 1234                # random‑number generator seed
     kB: 1.0                   # Boltzmann constant (reduced units)
-    temperature: 0.5            # T
+    temperature: 0.2            # T
     lam: 1                   # damping coefficient
     k_spring: 5.0             # harmonic force constant
     dt: 1e-3                  # integration time step
-    x_init: -500.0            # initial position
-    substeps: 500
+    x_init: 69420.0            # initial position
+    substeps: 10000
 
 # ------------------------------------------------------------------
 # Pipeline order
@@ -52,7 +52,7 @@ equilibrate:
 production:
   # Hyper‑parameters read in stages/production.py
   c: 5
-  tol: 50
+  tol: 100
   key: position
 
   gather:

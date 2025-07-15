@@ -60,9 +60,10 @@ def main(cfg: DictConfig) -> None:
     values = np.array(kc.state['position'])
     
     plt.plot(values, label=f'Mean: {np.mean(values):.3f}, Mean After EQ {np.mean(values[kc.equilibration_step:]):.3f}',color='k',alpha=0.3)
+    plt.plot(np.zeros_like(values),color='k',linestyle='dashed')
     plt.axvline(kc.equilibration_step,color='r',linestyle='dashed')
     plt.ylim(-5,5)
-    plt.legend()
+    plt.legend(fontsize=15)
     plt.show()
 
     print("Eq Step:",kc.equilibration_step)

@@ -3,7 +3,7 @@ def next_pow_two(n):
     """Returns the next power of two greater than or equal to `n`"""
     i = 1
     while i < n:
-        i = i << 1
+        i = i << 1 # bitshift
     return i
 
 def auto_window(taus, c):
