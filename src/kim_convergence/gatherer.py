@@ -8,6 +8,7 @@ from __future__ import annotations
 from collections.abc import Callable, Iterable
 from typing import Any
 from kim_convergence.core import KimConvergence
+from omegaconf import DictConfig
 
 class Gatherer:
     """Main loop driver.
@@ -34,35 +35,46 @@ class Gatherer:
         *,
         step_fn: Callable[["KimConvergence"], Any],
         convergence_fn: Callable[["KimConvergence"], bool],
+        # Callbacks themselves
         init_callbacks: Iterable[Callable[["KimConvergence"], Any]] = (),
         step_callbacks: Iterable[Callable[["KimConvergence"], Any]] = (),
         cleanup_callbacks: Iterable[Callable[["KimConvergence"], Any]] = (),
-    ):
+        # Arguments for each callback
+        init_callback_params: Iterable[DictConfig] = (),   
+        step_callback_params: Iterable[DictConfig] = (),
+        cleanup_callback_params: Iterable[DictConfig] = (),
+        ):
+        
         self.kc = kc
         self._step_fn = step_fn
         self._convergence_fn = convergence_fn
+
         self._init_cbs = list(init_callbacks) if init_callbacks is not None else []
         self._step_cbs = list(step_callbacks) if step_callbacks is not None else []
         self._cleanup_cbs = list(cleanup_callbacks) if cleanup_callbacks is not None else []
 
+        self._init_cb_params = list(init_callback_params) if init_callbacks is not None else []
+        self._step_cb_params = list(step_callback_params) if step_callbacks is not None else []
+        self._cleanup_cb_params = list(cleanup_callback_params) if cleanup_callbacks is not None else []
+
     # -------------------------------- helpers ------------------------------
     def _run_cbs(
-        self, callbacks: Iterable[Callable[["KimConvergence"], Any]]
+        self, callbacks: Iterable[Callable[["KimConvergence"], Any]], callback_params: Iterable[DictConfig] = ()
     ) -> None:
-        for cb in callbacks:
-            cb(self.kc)
+        for cb,param in zip(callbacks,callback_params):
+            cb(self.kc,param)
 
     # -------------------------------- main loop ------------------------------
     def gather(self) -> None:
         """Run until convergence_fn returns True or kc.max_steps reached."""
 
         # one‑time initialization
-        self._run_cbs(self._init_cbs)
+        self._run_cbs(self._init_cbs, self._init_cb_params)
 
         # iterate
         while not self._convergence_fn(self.kc) and self.kc.step < self.kc.max_steps:
             self._step_fn(self.kc)          # core unit of work
-            self._run_cbs(self._step_cbs)   # user hooks 
+            self._run_cbs(self._step_cbs, self._step_cb_params)   # user hooks 
 
         # cleanup
-        self._run_cbs(self._cleanup_cbs)
+        self._run_cbs(self._cleanup_cbs, self._cleanup_cb_params)

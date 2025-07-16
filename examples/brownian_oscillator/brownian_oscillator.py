@@ -1,4 +1,4 @@
-# kim_convergence/step_schemes/brownian_oscillator.py
+# kim-convergence/examples/brownian_oscillator.py
 from __future__ import annotations
 import numpy as np
 from kim_convergence.core import KimConvergence

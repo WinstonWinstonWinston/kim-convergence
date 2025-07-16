@@ -3,6 +3,7 @@ from __future__ import annotations
 from kim_convergence.gatherer import Gatherer
 from kim_convergence.core import KimConvergence
 from kim_convergence.callbacks.mcr import mcr
+from kim_convergence.utils import parse_callbacks
 
 def run(kc: "KimConvergence") -> None:
     """
@@ -16,11 +17,15 @@ def run(kc: "KimConvergence") -> None:
     )
 
     # ---- optional callback lists from YAML ---------------------------
-    g_cfg = p.get("gather", {})
-    init_cbs    = g_cfg.get("init_callbacks", ())
-    step_cbs    = g_cfg.get("step_callbacks", ())
-    cleanup_cbs = g_cfg.get("cleanup_callbacks", ())
+    g_cfg        = p.get("gather", {})
+    init_cbs     = g_cfg.get("init_callbacks", [])
+    step_cbs     = g_cfg.get("step_callbacks", [])
+    cleanup_cbs  = g_cfg.get("cleanup_callbacks", [])
 
+    # now parse each group:
+    init_cbs,    init_args    = parse_callbacks(init_cbs)
+    step_cbs,    step_args    = parse_callbacks(step_cbs)
+    cleanup_cbs, cleanup_args = parse_callbacks(cleanup_cbs)
     
     # ───── lambda captures the extra args so Gatherer only sees kc ─────
     if len(p.key) == 1: # try to only check single key
@@ -36,6 +41,9 @@ def run(kc: "KimConvergence") -> None:
         init_callbacks=init_cbs,
         step_callbacks=step_cbs,
         cleanup_callbacks=cleanup_cbs,
+        init_callback_params = init_args,
+        step_callback_params = step_args,
+        cleanup_callback_params = cleanup_args
     )
 
     g.gather()

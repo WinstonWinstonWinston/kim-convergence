@@ -1,10 +1,9 @@
 import numpy as np
 from kim_convergence.core import KimConvergence
 import matplotlib.pyplot as plt
-from typing import DefaultDict,List
+from typing import DefaultDict
 from omegaconf import DictConfig
 import collections
-
 
 def rangeloop(kc: KimConvergence, loopargs:DictConfig, loopkey: str) -> bool:
     if not hasattr(kc, 'loop_states') or kc.loop_states is None:
