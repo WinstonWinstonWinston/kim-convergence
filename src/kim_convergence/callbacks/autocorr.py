@@ -6,9 +6,9 @@ from scipy.stats import norm
 from kim_convergence.core import KimConvergence
 from kim_convergence.utils import autcorr_function_1d,auto_window
 
-def autocorr(values: Iterable[float], tol: int, c: int, log: logging.Logger) -> bool:
+def autocorr(values: Iterable[float], tol: int, c: int, key: str, kc: KimConvergence, log: logging.Logger) -> bool:
     """
-    Return True when the chain is tol*autocorr steps long. Nearly verbatim a copy of the emcee implementation.
+    Return True when the chain is tol*autocorr steps long. Nearly a verbatim copy of the emcee implementation.
     See https://github.com/dfm/emcee/blob/main/src/emcee/autocorr.py. 
 
     Parameters
@@ -49,10 +49,44 @@ def autocorr(values: Iterable[float], tol: int, c: int, log: logging.Logger) -> 
     
     log.info(
     "[autocorr] "
+    f"key = {key} | " 
     f"n = {n:,d} | "
     f"run_mean = {run_mean:.6f} | "
     f"tau_est = {tau_est} | "
     f"condition = {condition}"
     )
+
+    if condition:
+      plt.figure(figsize=(8, 4), dpi=150)
+
+      # full even‐extension
+      x = np.concatenate((-np.arange(len(rho))[::-1], np.arange(len(rho))))
+      y = np.concatenate((rho[::-1], rho))
+
+      # plot the entire curve
+      plt.plot(x, y, lw=1.5, label=r'$\rho(\ell)$')
+
+      # fill only between -window and +window
+      plt.fill_between(
+          x, y,
+          where=np.abs(x) <= window,
+          alpha=0.3
+      )
+
+      plt.axvline(tau_est,  color='C1', linestyle='--', lw=2,
+                  label=fr'$\tau_{{\rm est}}={tau_est:.1f}$')
+      plt.axvline(-tau_est, color='C1', linestyle='--', lw=2)
+      plt.axvline(window,   color='C2', linestyle='-.', lw=2, label=fr'$M={window}$')
+      plt.axvline(-window,  color='C2', linestyle='-.', lw=2)
+
+      plt.xlabel('Lag $\ell$')
+      plt.ylabel(r'Autocorrelation $\rho$')
+      plt.legend(loc='best', frameon=True)
+      plt.xlim(-1.5 * window, 1.5 * window)
+
+      plt.tight_layout()
+      plt.show()
+
+      setattr(kc, "tau_est_" + key, tau_est)
 
     return condition 

@@ -2,7 +2,7 @@
 # setup_kim_convergence_env.sh
 # -------------------------------------------------
 # Creates a Conda environment called `kc-dev`,
-# installs NumPy, Matplotlib, OmegaConf, Hydra,
+# installs packages like lammps, numpy, kim-api, etc.
 # builds the kim_convergence wheel, and
 # installs that wheel with pip.
 # -------------------------------------------------
@@ -17,18 +17,23 @@ conda create -n "${ENV_NAME}" python="${PY_VER}" -y
 source "$(conda info --base)/etc/profile.d/conda.sh"
 conda activate "${ENV_NAME}"
 
+conda config --add channels conda-forge
+conda config --set channel_priority strict
+
 echo ">>> Installing binary packages via conda..."
 conda install -y \
     numpy \
     matplotlib \
     scipy \
-    omegaconf
+    omegaconf \
+    kim-api \
+    kimpy \
+    lammps \
+    kliff
 
 echo ">>> Upgrading pip and adding build helpers..."
 python -m pip install --upgrade pip
-# `build` creates wheels; `wheel` supplies the bdist helper
 python -m pip install build wheel
-# Hydra is pure‑Python, so we still grab it with pip
 pip install hydra-core
 
 echo ">>> Building kim_convergence distribution..."
@@ -37,8 +42,7 @@ python -m build --wheel
 
 echo ">>> Installing kim_convergence from the freshly built wheel..."
 pip install -e .          # dev mode – live edits
-# pip install dist/*.whl    # frozen wheel – production test
-
+# pip install dist/*.whl  # frozen wheel – production test
 
 echo ">>> Environment ${ENV_NAME} is ready."
 echo "    Activate later with:  conda activate ${ENV_NAME}"

@@ -3,7 +3,7 @@ from typing import Sequence, Iterable
 import matplotlib.pyplot as plt
 import logging
 
-def mcr(values: Iterable[float], percent_past_d: float, every: int, log: logging.Logger) -> bool:
+def mcr(values: Iterable[float], percent_past_d: float, every: int, key: str, log: logging.Logger) -> bool:
     """
     Return True when the step is percent_past_d the d_* mcr statistic.
     For example, if percent_past_d = 2.3 then returns len(values) > d*2.3
@@ -21,7 +21,7 @@ def mcr(values: Iterable[float], percent_past_d: float, every: int, log: logging
     """
     if not values:
         return False
-    
+
     values = np.array(values)
 
     n = len(values)
@@ -33,7 +33,7 @@ def mcr(values: Iterable[float], percent_past_d: float, every: int, log: logging
     condition = n > d_star*percent_past_d
 
     log.info(
-    f"[mcr]: n = {n} | d* = {d_star} |  condition = {condition}"
+    f"[mcr]: key = {key} | n = {n} | d* = {d_star} |  condition = {condition}"
     )
 
     return condition

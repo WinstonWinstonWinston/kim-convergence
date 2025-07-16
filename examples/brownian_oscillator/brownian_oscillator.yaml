@@ -13,18 +13,18 @@ hydra:
 #           dynamics *and* passes its hyper‑parameters.
 # ------------------------------------------------------------------
 
-step_fn:
+stepFn:
   fname: brownian_oscillator.py
-  max_steps: 1e9            # maximum steps
+  maxSteps: 1e9            # maximum steps
   params:
     seed: 1234                # random‑number generator seed
     kB: 1.0                   # Boltzmann constant (reduced units)
     temperature: 0.2            # T
     lam: 1                   # damping coefficient
-    k_spring: 5.0             # harmonic force constant
+    kSpring: 5.0             # harmonic force constant
     dt: 1e-3                  # integration time step
-    x_init: 69420.0            # initial position
-    substeps: 10000
+    xInit: 420.0            # initial position
+    substeps: 500
 
 # ------------------------------------------------------------------
 # Pipeline order
@@ -40,22 +40,22 @@ pipeline:
 
 equilibrate:
   # Hyper‑parameters read in stages/equilibrate.py
-  percent_past_d: 2
-  every: 100
-  key: position
+  percent_past_d: 1.5
+  every: 50
+  key: [position, position_squared]
 
   gather:
-    init_callbacks:
-    step_callbacks:
-    cleanup_callbacks:
+    initCallbacks:
+    stepCallbacks:
+    cleanupCallbacks:
 
 production:
   # Hyper‑parameters read in stages/production.py
   c: 5
   tol: 100
-  key: position
+  key: [position, position_squared]
 
   gather:
-    init_callbacks:
-    step_callbacks:
-    cleanup_callbacks:
+    initCallbacks:
+    stepCallbacks:
+    cleanupCallbacks:

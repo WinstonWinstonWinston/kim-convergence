@@ -1,0 +1,136 @@
+# configs/main.yaml
+# ------------------------------------------------------------------
+# Minimal, end‑to‑end configuration that matches the code layout
+# we just finished wiring up (Hydra + Gatherer + loop stage).
+# ------------------------------------------------------------------
+
+hydra:
+  run:
+    dir: "outputs/${now:%Y%m%d_%H%M%S}"   # keep Hydra logs tidy
+
+# ------------------------------------------------------------------
+# stepFn : tells KimConvergence which file implements the per‑step
+#           dynamics *and* passes its hyper‑parameters.
+# ------------------------------------------------------------------
+
+stepFn:
+  max_steps: 1e9              # maximum steps
+  params:
+    seed: 1234                # random‑number generator seed
+    initFname: init_T.mod     # initialization module
+    temperature: 200          # T in [K]
+    substeps: 10000
+
+# ------------------------------------------------------------------
+# Pipeline order
+# ------------------------------------------------------------------
+pipeline:
+  stages:
+    - equilibrate_init
+    - loop:
+      loopcondition: rangeLoop
+      loopkey: voigtIdx
+      loopargs:
+        - start: 0
+        - stop:  6
+        - step:  1
+      stages:
+        - equilibrate_displacep
+        - production_displacep
+        - equilibrate_displacem
+        - production_displacem
+
+# ------------------------------------------------------------------
+# Stage definitions
+# ------------------------------------------------------------------
+
+equilibrate_displacePlus:
+
+  percent_past_d: 2
+  every: 100
+  key: ["d1", "d2", "d3", "d4", "d5", "d6"]
+
+  gather:
+    initCallbacks:
+      - type: lammps.utils.loadRestart
+        restart: restart.equil
+
+      - type: lammps.elastic.logger
+        nevery: 25
+        nrepeat: 500
+        nfreq: 12500
+
+      - type: lammps.integrators.nvt
+        method: langevin
+        tstart: 200
+        tstop: 200
+        tdamp: 10
+
+      - type: lammps.elastic.displace
+        up: 0.05
+        sign: plus
+
+    stepCallbacks:
+      - type: lammmps.utils.recordState
+        fields: ["d1", "d2", "d3", "d4", "d5", "d6"]
+
+    cleanupCallbacks:
+
+equilibrate_displaceMinus:
+
+  percent_past_d: 2
+  every: 100
+  key: ["d1", "d2", "d3", "d4", "d5", "d6"]
+
+  gather:
+    initCallbacks:
+      - type: lammps.utils.loadRestart
+        restart: restart.equil
+
+      - type: lammps.elastic.logger
+        nevery: 25
+        nrepeat: 500
+        nfreq: 12500
+
+      - type: lammps.integrators.nvt
+        method: langevin
+        fixid: eqDisplaceThermostat
+        tstart: 200
+        tstop: 200
+        tdamp: 10
+
+      - type: lammps.elastic.displace
+        up: 0.05
+        sign: minus
+
+    stepCallbacks:
+      - type: lammmps.utils.recordState
+        fields: ["d1", "d2", "d3", "d4", "d5", "d6"]
+
+    cleanupCallbacks:
+
+production_displacep:
+  # Hyper‑parameters read in stages/production.py
+  c: 5
+  tol: 100
+  key: ["d1", "d2", "d3", "d4", "d5", "d6"]
+
+  gather:
+    init_callbacks:
+    step_callbacks:
+    cleanup_callbacks: 
+      - type: lammps.elastic.cleanup
+        sign: plus
+
+production_displacem:
+  # Hyper‑parameters read in stages/production.py
+  c: 5
+  tol: 100
+  key: ["d1", "d2", "d3", "d4", "d5", "d6"]
+
+  gather:
+    initCallbacks:
+    stepCallbacks:
+    cleanupCallbacks: 
+      - type: lammps.elastic.cleanup
+        sign: minus

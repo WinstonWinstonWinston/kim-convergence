@@ -12,7 +12,7 @@ def run(kc: "KimConvergence") -> None:
     # ---- echo hyper‑parameters  ------------------
     p = kc.cfg.equilibrate
     kc.log.info(
-    f"[equilibrate]: starting equilibrate, percent_past_d = {p.percent_past_d}, every = {p.every}, key = {p.key}"
+    f"[equilibrate]: starting equilibrate | key = {p.key} | percent_past_d = {p.percent_past_d} | every = {p.every}"
     )
 
     # ---- optional callback lists from YAML ---------------------------
@@ -20,9 +20,13 @@ def run(kc: "KimConvergence") -> None:
     init_cbs    = g_cfg.get("init_callbacks", ())
     step_cbs    = g_cfg.get("step_callbacks", ())
     cleanup_cbs = g_cfg.get("cleanup_callbacks", ())
+
     
     # ───── lambda captures the extra args so Gatherer only sees kc ─────
-    convergence_fn = lambda kc, b=p.percent_past_d, c=p.every, d=kc.log: mcr(kc.state[p.key], b, c, d)
+    if len(p.key) == 1: # try to only check single key
+        convergence_fn = lambda kc: mcr(kc.state[p.key], p.percent_past_d, p.every, p.key, kc.log)
+    else: # fall back and check all keys
+        convergence_fn =  lambda kc: all(mcr(kc.state["position"],  p.percent_past_d, p.every, k, kc.log) for k in p.key)
 
     # ---- build and run the loop --------------------------------------
     g = Gatherer(

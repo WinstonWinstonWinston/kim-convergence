@@ -19,9 +19,9 @@ class KimConvergence:
         - loop:
             loopcondition: path.to.callback     # returns bool
             stages:
-              - sub_stage1
-              - sub_stage2
-              - sub_stage3
+              - substage1
+              - substage2
+              - substage3
         - stage2
 
     Every plain stage name (e.g. "equilibrate") must correspond to a
@@ -71,6 +71,7 @@ class KimConvergence:
         mod.run(self)
 
     def _resolve_callback(self, mod_path: str) -> None:
+        mod = mod.split("_")[0] # callback file is the first element
         try:
             mod = importlib.import_module("kim_convergence.callbacks."+mod_path)
         except ModuleNotFoundError as e:
@@ -81,15 +82,15 @@ class KimConvergence:
     def _execute(self, stages) -> None:
         for item in stages:
             if isinstance(item, str):                         # plain stage
-                self._run_stage(item)
+                self._run_stage(item.split("_")[0])           # stage name is the first element
 
             elif isinstance(item, DictConfig) and "loop" in item:
                 loop_cfg = item.loop
                 cond: Callable[["KimConvergence"], bool] = self._resolve_callback(
                     loop_cfg.loopcondition
                 )
-                while cond(self):
-                    self._execute(loop_cfg.stages)            # recurse into loop
+                while cond(self,loop_cfg.loopargs,loop_cfg.loopkey):
+                    self._execute(loop_cfg.stages)                  # recurse into loop
             
     # ------------------------------ API ------------------------------
     def run(self) -> None:

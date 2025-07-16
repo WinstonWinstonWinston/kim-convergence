@@ -22,7 +22,10 @@ def run(kc: "KimConvergence") -> None:
     cleanup_cbs = g_cfg.get("cleanup_callbacks", ())
 
     # ───── lambda captures the extra args so Gatherer only sees kc ─────
-    convergence_fn = lambda kc, b=p.tol, c=p.c, d=kc.log,: autocorr(kc.state["position"][kc.equilibration_step:], b, c, d)
+    if len(p.key) == 1: # try to only check single key
+        convergence_fn = lambda kc: autocorr(kc.state[p.key],  p.tol, p.c, p.key, kc, kc.log)
+    else: # fall back and check all keys
+        convergence_fn =  lambda kc: all(autocorr(kc.state[k],  p.tol, p.c, k, kc, kc.log) for k in p.key)
 
     # ---- build and run the loop --------------------------------------
     g = Gatherer(

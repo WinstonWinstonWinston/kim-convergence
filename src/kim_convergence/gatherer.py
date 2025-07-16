@@ -1,7 +1,7 @@
 # kim_convergence/gatherer.py
 #
 # A VERY small loop‑driver: all domain work lives in user‑supplied
-# callables.  Gatherer itself knows nothing about simulation details;
+# callables. Gatherer itself knows nothing about simulation details;
 # it just runs functions in a fixed order until a predicate says stop.
 
 from __future__ import annotations
