@@ -1,0 +1,56 @@
+defaults:
+  - override hydra/hydra_logging: default
+  - override hydra/job_logging: default
+
+hydra:
+  job:
+    name: LJ_KimConvergence
+  runtime:
+    output_dir: .
+
+# ------------------------------------------------------------------
+# step_fn : tells KimConvergence the stepping schemes hyper‑parameters.
+# ------------------------------------------------------------------
+
+stepFn:
+  maxSteps: 500000            # maximum steps
+  params:
+    substeps: 50
+
+# ------------------------------------------------------------------
+# Pipeline order
+# ------------------------------------------------------------------
+pipeline:
+  stages:
+    - equilibrate
+    - production
+
+# ------------------------------------------------------------------
+# Stage definitions
+# ------------------------------------------------------------------
+
+equilibrate:
+  # Hyper‑parameters read in stages/equilibrate.py
+  percent_past_d: 50
+  every: 1
+  key: [v_T, v_P]
+
+  gather:
+    initCallbacks:
+    stepCallbacks: 
+      - type: lammps.recordState
+        keys: [v_T, v_P]
+    cleanupCallbacks:
+
+production:
+  # Hyper‑parameters read in stages/production.py
+  c: 5
+  tol: 1000
+  key: [v_T, v_P]
+
+  gather:
+    initCallbacks:
+    stepCallbacks: 
+      - type: lammps.recordState
+        keys: [v_T, v_P]
+    cleanupCallbacks:

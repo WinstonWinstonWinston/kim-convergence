@@ -43,7 +43,6 @@ class KimConvergence:
 
         # Keep both forms handy
         self.cfg: DictConfig = cfg
-        self.config: dict = OmegaConf.to_container(cfg, resolve=True)
 
         # Parse the pipeline section up‑front
         self.pipeline = list(cfg.get("pipeline", {}).get("stages", []))
@@ -71,13 +70,12 @@ class KimConvergence:
         mod.run(self)
 
     def _resolve_callback(self, mod_path: str) -> None:
-        mod = mod.split("_")[0] # callback file is the first element
+        name = mod_path.split("_")[0].split(".")[-1] # callback file is the first element
         try:
             mod = importlib.import_module("kim_convergence.callbacks."+mod_path)
         except ModuleNotFoundError as e:
             raise ImportError(f"Could not import loop check callback '{mod_path}': {e}")
-
-        return mod
+        return getattr(mod, name)
         
     def _execute(self, stages) -> None:
         for item in stages:

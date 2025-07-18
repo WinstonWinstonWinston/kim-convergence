@@ -1,0 +1,31 @@
+units           lj                # ε = σ = m = k_B = 1
+atom_style      atomic
+
+boundary        p p p             # periodic box (x,y,z)
+
+lattice         fcc 0.8442        # density ≈ 0.8442
+region          box block 0 4 0 4 0 4
+create_box      1 box
+create_atoms    1 box
+
+pair_style      lj/cut 2.5        # standard 2.5σ cutoff
+pair_coeff      1 1 1.0 1.0 2.5   # ε σ cutoff
+
+mass            1 1.0
+
+velocity        all create 1 12345 mom yes rot yes dist gaussian
+
+timestep        0.005
+
+fix             int all nve
+
+thermo          100               # print every 100 steps
+thermo_style    custom step temp etotal press
+fix             thermostat all langevin 3 3 0.01 123
+
+variable  T  equal  c_thermo_temp 
+variable  P  equal  c_thermo_press 
+
+dump d1 all xyz 100 dump.xyz
+
+kim_convergence LJ.yaml

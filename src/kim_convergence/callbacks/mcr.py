@@ -1,6 +1,6 @@
 import numpy as np
 from typing import Sequence, Iterable
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import logging
 
 def mcr(values: Iterable[float], percent_past_d: float, every: int, key: str, log: logging.Logger) -> bool:
@@ -19,9 +19,9 @@ def mcr(values: Iterable[float], percent_past_d: float, every: int, key: str, lo
     • If values is empty the function returns False
       (nothing recorded yet).
     """
-    if not values:
+    if not values or len(values) < 10:
         return False
-
+    
     values = np.array(values)
 
     n = len(values)
@@ -35,5 +35,5 @@ def mcr(values: Iterable[float], percent_past_d: float, every: int, key: str, lo
     log.info(
     f"[mcr]: key = {key} | n = {n} | d* = {d_star} |  condition = {condition}"
     )
-
+    
     return condition

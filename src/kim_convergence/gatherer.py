@@ -62,7 +62,8 @@ class Gatherer:
         self, callbacks: Iterable[Callable[["KimConvergence"], Any]], callback_params: Iterable[DictConfig] = ()
     ) -> None:
         for cb,param in zip(callbacks,callback_params):
-            cb(self.kc,param)
+            fn = self.kc._resolve_callback(cb)
+            fn(self.kc, param)
 
     # -------------------------------- main loop ------------------------------
     def gather(self) -> None:

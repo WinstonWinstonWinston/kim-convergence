@@ -105,7 +105,7 @@ def main(cfg: DictConfig) -> None:
     plt.legend(fontsize=12, loc='upper left')
 
     plt.tight_layout()
-    plt.show()
+    plt.savefig('plot.png')
 
 if __name__ == "__main__":
     main()

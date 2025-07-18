@@ -1,5 +1,6 @@
 import numpy as np
 from omegaconf import OmegaConf
+import importlib
 
 def next_pow_two(n):
     """Returns the next power of two greater than or equal to `n`"""
@@ -38,11 +39,14 @@ def autcorr_function_1d(x):
 def parse_callbacks(cb_list):
     types = []
     args  = []
-    for cb in cb_list:
-        # 1) record the callback type
-        types.append(cb.type)
-        # 2) strip out "type" and rebuild a pure-args DictConfig
-        arg_dict = OmegaConf.to_container(cb, resolve=True)
-        arg_dict.pop("type", None)
-        args.append(OmegaConf.create(arg_dict))
-    return types, args
+    if cb_list is not None:
+        for cb in cb_list:
+            # 1) record the callback type
+            types.append(cb.type)
+            # 2) strip out "type" and rebuild a pure-args DictConfig
+            arg_dict = OmegaConf.to_container(cb, resolve=True)
+            arg_dict.pop("type", None)
+            args.append(OmegaConf.create(arg_dict))
+        return types, args
+    else:
+        return (), ()

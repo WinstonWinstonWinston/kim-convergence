@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# setup_kim_convergence_env.sh
+# -------------------------------------------------
+# Creates a Conda environment called `kc-dev`,
+# installs packages like lammps, numpy, kim-api, etc.
+# builds the kim_convergence wheel, and
+# installs that wheel with pip.
+# -------------------------------------------------
+
+set -e
+
+ENV_NAME="kc-dev"
+PY_VER="3.11"
+
+echo ">>> Creating / activating Conda env: ${ENV_NAME}"
+$HOME/micromamba/micromamba create -n "${ENV_NAME}" python="${PY_VER}" -
+$HOME/micromamba/micromamba activate "${ENV_NAME}"
+
+$HOME/micromamba/micromamba config --add channels conda-forge
+$HOME/micromamba/micromamba config --set channel_priority strict
+
+echo ">>> Installing binary packages via conda..."
+$HOME/micromamba/micromamba install -y \
+    numpy \
+    matplotlib \
+    scipy \
+    omegaconf \
+    kim-api \
+    kimpy \
+    lammps \
+    kliff
+
+echo ">>> Upgrading pip and adding build helpers..."
+python -m pip install --upgrade pip
+python -m pip install build wheel
+pip install hydra-core
+
+echo ">>> Building kim_convergence distribution..."
+# Creates dist/<name>-<version>-py3-none-any.whl (and a source tarball)
+python -m build --wheel
+
+echo ">>> Installing kim_convergence from the freshly built wheel..."
+pip install -e .          # dev mode – live edits
+# pip install dist/*.whl  # frozen wheel – production test
+
+echo ">>> Environment ${ENV_NAME} is ready."
+echo "    Activate later with:  conda activate ${ENV_NAME}"
