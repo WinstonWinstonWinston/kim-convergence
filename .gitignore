@@ -6,11 +6,11 @@ __pycache__/
 # C extensions
 *.so
 
+# Winston added this dont kill me
 examples/*/outputs/
-
 nonfeatures/
-
 kim-convergence.code-workspace
+*.xyz
 
 # Distribution / packaging
 .Python
