@@ -49,13 +49,14 @@ def run(kc: "KimConvergence") -> None:
     g.gather()
 
     # ---- save equilibration time to kc --------------------------------------
-    kc.equilibration_step = int(kc.step/p.every)
+    kc.equilibration_step = kc.step
+    kc.equilibration_state = int(kc.step/p.every)
 
     if kc.step < kc.max_steps:
         kc.log.info(
         f"[equilibrate]: equilibrate complete | equilibration step = {kc.step}"
         )
-    
+
     else:
         kc.log.info(
         f"[equilibrate]: equilibrate failed"

@@ -29,9 +29,15 @@ def run(kc: "KimConvergence") -> None:
 
     # ───── lambda captures the extra args so Gatherer only sees kc ─────
     if len(p.key) == 1: # try to only check single keyr
-        convergence_fn = lambda kc: autocorr(kc.state[p.key[0]],  p.tol, p.c, p.key, kc, kc.log)
+        convergence_fn = lambda kc: autocorr(
+                                            kc.state[p.key[0]][kc.equilibration_state:],
+                                            p.tol, 
+                                            p.c, 
+                                            p.key, 
+                                            kc, 
+                                            kc.log)
     else: # fall back and check all keys
-        convergence_fn =  lambda kc: all(autocorr(kc.state[k],  p.tol, p.c, k, kc, kc.log) for k in p.key)
+        convergence_fn =  lambda kc: all(autocorr(kc.state[k][kc.equilibration_state:],  p.tol, p.c, k, kc, kc.log) for k in p.key)
 
     # ---- build and run the loop --------------------------------------
     g = Gatherer(
@@ -45,13 +51,8 @@ def run(kc: "KimConvergence") -> None:
         step_callback_params = step_args,
         cleanup_callback_params = cleanup_args
     )
-
-    # ---- save equilibration time to kc --------------------------------------
-    kc.equilibration_time = kc.step
     
     g.gather()
-
-
 
     if kc.step < kc.max_steps:
             kc.log.info(
@@ -63,4 +64,3 @@ def run(kc: "KimConvergence") -> None:
         f"[production]: production failed"
         )
         raise Warning("Increase max steps to allow for system to fully sample")
-

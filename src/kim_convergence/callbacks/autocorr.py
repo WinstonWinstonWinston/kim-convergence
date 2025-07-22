@@ -56,36 +56,37 @@ def autocorr(values: Iterable[float], tol: int, c: int, key: str, kc: KimConverg
     f"condition = {condition}"
     )
 
-    #if condition:
-    #   plt.figure(figsize=(8, 4), dpi=150)
+    if condition:
+        object.__setattr__(kc,"tau_est_" + str(key), tau_est)
 
-    #   # full even‐extension
-    #   x = np.concatenate((-np.arange(len(rho))[::-1], np.arange(len(rho))))
-    #   y = np.concatenate((rho[::-1], rho))
+        #   plt.figure(figsize=(8, 4), dpi=150)
 
-    #   # plot the entire curve
-    #   plt.plot(x, y, lw=1.5, label=r'$\rho(\ell)$')
+        #   # full even‐extension
+        #   x = np.concatenate((-np.arange(len(rho))[::-1], np.arange(len(rho))))
+        #   y = np.concatenate((rho[::-1], rho))
 
-    #   # fill only between -window and +window
-    #   plt.fill_between(
-    #       x, y,
-    #       where=np.abs(x) <= window,
-    #       alpha=0.3
-    #   )
+        #   # plot the entire curve
+        #   plt.plot(x, y, lw=1.5, label=r'$\rho(\ell)$')
 
-    #   plt.axvline(tau_est,  color='C1', linestyle='--', lw=2,
-    #               label=fr'$\tau_{{\rm est}}={tau_est:.1f}$')
-    #   plt.axvline(-tau_est, color='C1', linestyle='--', lw=2)
-    #   plt.axvline(window,   color='C2', linestyle='-.', lw=2, label=fr'$M={window}$')
-    #   plt.axvline(-window,  color='C2', linestyle='-.', lw=2)
+        #   # fill only between -window and +window
+        #   plt.fill_between(
+        #       x, y,
+        #       where=np.abs(x) <= window,
+        #       alpha=0.3
+        #   )
 
-    #   plt.xlabel('Lag $\ell$')
-    #   plt.ylabel(r'Autocorrelation $\rho$')
-    #   plt.legend(loc='best', frameon=True)
-    #   plt.xlim(-1.5 * window, 1.5 * window)
+        #   plt.axvline(tau_est,  color='C1', linestyle='--', lw=2,
+        #               label=fr'$\tau_{{\rm est}}={tau_est:.1f}$')
+        #   plt.axvline(-tau_est, color='C1', linestyle='--', lw=2)
+        #   plt.axvline(window,   color='C2', linestyle='-.', lw=2, label=fr'$M={window}$')
+        #   plt.axvline(-window,  color='C2', linestyle='-.', lw=2)
 
-    #   plt.tight_layout()
-    #   plt.show() 
-    #  setattr(kc, "tau_est_" + key, tau_est)
+        #   plt.xlabel('Lag $\ell$')
+        #   plt.ylabel(r'Autocorrelation $\rho$')
+        #   plt.legend(loc='best', frameon=True)
+        #   plt.xlim(-1.5 * window, 1.5 * window)
+
+        #   plt.tight_layout()
+        #   plt.show() 
 
     return condition 
