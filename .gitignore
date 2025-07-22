@@ -11,6 +11,9 @@ examples/*/outputs/
 nonfeatures/
 kim-convergence.code-workspace
 *.xyz
+vars.dump
+log.lammps
+*.log
 
 # Distribution / packaging
 .Python

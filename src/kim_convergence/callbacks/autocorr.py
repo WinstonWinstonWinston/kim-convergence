@@ -50,14 +50,14 @@ def autocorr(values: Iterable[float], tol: int, c: int, key: str, kc: KimConverg
     log.info(
     "[autocorr] "
     f"key = {key} | " 
-    f"n = {n:,d} | "
+    f"n = {n*kc.cfg.stepFn.substeps:,d} | "
     f"run_mean = {run_mean:.6f} | "
-    f"tau_est = {tau_est} | "
+    f"tau_est = {tau_est*kc.cfg.stepFn.substeps} | "
     f"condition = {condition}"
     )
 
     if condition:
-        object.__setattr__(kc,"tau_est_" + str(key), tau_est)
+        object.__setattr__(kc,"tau_est_" + str(key), tau_est*kc.cfg.stepFn.substeps)
 
         #   plt.figure(figsize=(8, 4), dpi=150)
 

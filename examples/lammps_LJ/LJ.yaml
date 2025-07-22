@@ -13,9 +13,8 @@ hydra:
 # ------------------------------------------------------------------
 
 stepFn:
-  maxSteps: 500000            # maximum steps
-  params:
-    substeps: 5
+  maxSteps: 500000
+  substeps: 100
 
 # ------------------------------------------------------------------
 # Pipeline order
@@ -33,24 +32,24 @@ equilibrate:
   # Hyper‑parameters read in stages/equilibrate.py
   percent_past_d: 50
   every: 1
-  key: [v_T]
+  key: [v_T, v_E, v_P]
 
   gather:
     initCallbacks:
     stepCallbacks: 
       - type: lammps.recordState
-        keys: [v_T]
+        keys: [v_T, v_E, v_P]
     cleanupCallbacks:
 
 production:
   # Hyper‑parameters read in stages/production.py
   c: 5
-  tol: 1000
-  key: [v_T]
+  tol: 500
+  key: [v_T, v_E, v_P]
 
   gather:
     initCallbacks:
     stepCallbacks: 
       - type: lammps.recordState
-        keys: [v_T]
+        keys: [v_T, v_E, v_P]
     cleanupCallbacks:

@@ -19,14 +19,17 @@ timestep        0.005
 
 fix             int all nve
 
-thermo          100               # print every 100 steps
+thermo          100
 thermo_style    custom step temp etotal press
 fix             thermostat all langevin 3 3 0.01 123
 
-variable  T  equal  c_thermo_temp 
-variable  P  equal  c_thermo_press 
+variable  T  equal  temp 
+variable  P  equal  press
+variable  E  equal  etotal
+variable  istep equal step
 
 dump d1 all xyz 100 dump.xyz
+fix  dumpVars all print 100 "${istep} ${T} ${P} ${E}" file vars.dump screen no
 
 kim_convergence LJ.yaml
 

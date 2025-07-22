@@ -50,7 +50,7 @@ def run(kc: "KimConvergence") -> None:
 
     # ---- save equilibration time to kc --------------------------------------
     kc.equilibration_step = kc.step
-    kc.equilibration_state = int(kc.step/p.every)
+    kc.equilibration_state = int(kc.step/kc.cfg.stepFn.substeps)
 
     if kc.step < kc.max_steps:
         kc.log.info(

@@ -16,6 +16,7 @@ hydra:
 stepFn:
   fname: brownian_oscillator.py
   maxSteps: 1e9            # maximum steps
+  substeps: 500
   params:
     seed: 1234                # random‑number generator seed
     kB: 1.0                   # Boltzmann constant (reduced units)
@@ -24,7 +25,6 @@ stepFn:
     kSpring: 5.0             # harmonic force constant
     dt: 1e-3                  # integration time step
     xInit: 420.0            # initial position
-    substeps: 500
 
 # ------------------------------------------------------------------
 # Pipeline order
