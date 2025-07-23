@@ -13,7 +13,7 @@ ENV_NAME="kc-dev"
 PY_VER="3.11"
 
 echo ">>> Creating / activating Conda env: ${ENV_NAME}"
-$HOME/micromamba/micromamba create -n "${ENV_NAME}" python="${PY_VER}" -
+$HOME/micromamba/micromamba create -n "${ENV_NAME}" python="${PY_VER}" -y
 $HOME/micromamba/micromamba activate "${ENV_NAME}"
 
 $HOME/micromamba/micromamba config --add channels conda-forge

@@ -44,5 +44,14 @@ def kim_convergence(ptr: int, config_name: str):
     # 6) Walk the pipeline
     kc.run()
 
-    # 7) Tell LAMMPS you’re finished
+    identifier = str(*config_name.split(".")[:-1])
+
+    # 7) Tell LAMMPS eq time and taus
+    lmp.command(f'print "KimConvergence equilibrated at step {kc.equilibration_step}"')
+    biggest_tau = max((getattr(kc, a) for a in dir(kc) if a.startswith("tau_est_")), default=None)
+    lmp.command(f'print "KimConvergence estimated tau_est to be {biggest_tau}"')
+    lmp.command(f"variable tau_est_{identifier} equal {biggest_tau}")
+    lmp.command(f"variable equilibration_step_{identifier} equal {kc.equilibration_step}")
+
+    # 8) Tell LAMMPS you’re finished
     lmp.command(f'print "KimConvergence {config_name} complete"')

@@ -9,21 +9,7 @@ chmod +x setup_kim_convergence_env.sh   # make the install/setup script executab
 ./setup_kim_convergence_env.sh          # modify as needed for your machine (modules, conda/micromamba, paths)
 ```
 
-**Important:** ensure `kim-convergence` itself is installed with pip (editable mode):
-
-```bash
-pip install -e .
-```
-
-**Quick check:** launch a Python REPL and try importing it. If nothing errors, you're set:
-
-```bash
-python
->>> import kim_convergence
->>> exit()
-```
-
-> The `.sh` script may need edits for your environment (e.g., swapping `conda` for `micromamba`, changing module names, CUDA arch, etc.).
+> The `.sh` script may need edits for your environment (e.g., swapping `conda` for `micromamba`, changing module names, CUDA arch, etc. I originally used conda on my mac, but micromamba is reccomended here, I've run into less issues with it).
 
 **Activate the environment before installing LAMMPS:**
 
@@ -114,3 +100,4 @@ cmake \
 ```bash
 cmake --build .
 ```
+    
