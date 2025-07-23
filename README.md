@@ -22,8 +22,6 @@ micromamba activate kc-dev
 
 ## Building LAMMPS with KimConvergence
 
-> **Do not change these instructions.** Commands are kept exactly as provided; only minimal Markdown formatting was added.
-
 ---
 
 ## Step 1: Clone release branch
