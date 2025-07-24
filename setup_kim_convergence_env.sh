@@ -1,116 +1,48 @@
-# Installing kim-convergence
+#!/usr/bin/env bash
+# setup_kim_convergence_env.sh
+# -------------------------------------------------
+# Creates a Conda environment called `kc-dev`,
+# installs packages like lammps, numpy, kim-api, etc.
+# builds the kim_convergence wheel, and
+# installs that wheel with pip.
+# -------------------------------------------------
 
-Repo: [https://github.com/WinstonWinstonWinston/kim-convergence](https://github.com/WinstonWinstonWinston/kim-convergence)
+set -e  # exit on first error
 
-```bash
-git clone https://github.com/WinstonWinstonWinston/kim-convergence.git
-cd kim-convergence
-chmod +x setup_kim_convergence_env.sh   # make the install/setup script executable
-./setup_kim_convergence_env.sh          # modify as needed for your machine (modules, conda/micromamba, paths)
-```
+ENV_NAME="kc-dev"
+PY_VER="3.11"
 
-**Important:** ensure `kim-convergence` itself is installed with pip (editable mode):
+echo ">>> Creating / activating Conda env: ${ENV_NAME}"
+conda create -n "${ENV_NAME}" python="${PY_VER}" -y
+source "$(conda info --base)/etc/profile.d/conda.sh"
+conda activate "${ENV_NAME}"
 
-```bash
-pip install -e .
-```
+conda config --add channels conda-forge
+conda config --set channel_priority strict
 
-**Quick check:** launch a Python REPL and try importing it. If nothing errors, you're set:
+echo ">>> Installing binary packages via conda..."
+conda install -y \
+    numpy \
+    matplotlib \
+    scipy \
+    omegaconf \
+    kim-api \
+    kimpy \
+    lammps \
+    kliff
 
-```bash
-python
->>> import kim_convergence
->>> exit()
-```
+echo ">>> Upgrading pip and adding build helpers..."
+python -m pip install --upgrade pip
+python -m pip install build wheel
+pip install hydra-core
 
-> The `.sh` script may need edits for your environment (e.g., swapping `conda` for `micromamba`, changing module names, CUDA arch, etc.).
+echo ">>> Building kim_convergence distribution..."
+# Creates dist/<name>-<version>-py3-none-any.whl (and a source tarball)
+python -m build --wheel
 
-**Activate the environment before installing LAMMPS:**
+echo ">>> Installing kim_convergence from the freshly built wheel..."
+pip install -e .          # dev mode – live edits
+# pip install dist/*.whl  # frozen wheel – production test
 
-```bash
-conda activate kc-dev    # or
-micromamba activate kc-dev
-```
-
----
-
-## Building LAMMPS with KimConvergence
-
-> **Do not change these instructions.** Commands are kept exactly as provided; only minimal Markdown formatting was added.
-
----
-
-## Step 1: Clone release branch
-
-```bash
-git clone -b release https://github.com/lammps/lammps.git lammps
-```
-
-## Step 1.5: Copy KimConvergence command files into LAMMPS
-
-Put the three KimConvergence files into `lammps/src/EXTRA-COMMAND/` on your machine (this matches the upstream path in the LAMMPS repo):
-
-* `kim_convergence_hook.py`
-* `kim_convergence.cpp`
-* `kim_convergence.h`
-
-## Step 2: Load modules (can change from machine to machine, these worked for me on MSI)
-
-```bash
-module purge
-module load gcc/8.2.0
-module load ompi/3.1.6/gnu-8.2.0
-module load cuda/11.2
-```
-
-## Step 3: Sanity check
-
-```bash
-which nvcc
-which mpicxx
-which gcc
-```
-
-**Expected:**
-
-```
-/common/software/install/migrated/cuda/11.2/bin/nvcc
-/common/software/install/migrated/openmpi/el6/3.1.6/gnu-8.2.0/bin/mpicxx
-/common/software/install/migrated/gcc/8.2.0/bin/gcc
-```
-
-## Step 4: Prepare build directory
-
-```bash
-cd lammps
-mkdir build
-cd build
-```
-
-**You may also want to add `-DPKG_KIM=ON` (or other MLIP-related packages/flags) to the CMake line if you need them.**
-
-```bash
-cmake \
-  -C ../cmake/presets/all_on.cmake \
-  -C ../cmake/presets/nolib.cmake \
-  -C ../cmake/presets/basic.cmake \
-  -DPKG_GPU=ON \
-  -DGPU_API=cuda \
-  -DGPU_ARCH=sm_80 \
-  -DPKG_OPENMP=ON \
-  -DBUILD_OMP=ON \
-  -DPKG_EXTRA-COMMAND=ON \
-  -DPKG_PYTHON=ON \
-  -DPYTHON_EXECUTABLE=$CONDA_PREFIX/bin/python \
-  -DPYTHON_INCLUDE_DIR=$CONDA_PREFIX/include/python3.Ym \
-  -DPYTHON_LIBRARY=$CONDA_PREFIX/lib/libpython3.Ym.so \
-  -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX \
-  -DBUILD_SHARED_LIBS=ON \
-  ../cmake
-```
-
-## Step 6: Compile
-
-```bash
-cmake --build .
-```
+echo ">>> Environment ${ENV_NAME} is ready."
+echo "    Activate later with:  conda activate ${ENV_NAME}"
